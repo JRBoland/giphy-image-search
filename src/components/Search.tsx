@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, KeyboardEvent, ChangeEvent } from 'react'
 import { fetchGif } from '../utils/fetchGifs';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Image = {
   id: string;
@@ -20,7 +22,7 @@ const Search = () => {
   const handleSearch = async () => {
     setIsLoading(true);
     try {
-      const gifs = await fetchGif(searchTerm, (errorMessage) =>
+      const gifs = await fetchGif(searchTerm, (errorMessage: string) =>
         console.error(errorMessage),
       );
       setImages(gifs || []); // Update state with the response data
@@ -31,18 +33,22 @@ const Search = () => {
   };
 
   // Pressing enter triggers search
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
 
   return (
     <div className="search-component">
       <input
         placeholder="Search"
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={handleChange}
         onKeyDown={handleKeyPress}
       />
       <button onClick={handleSearch}>
@@ -65,6 +71,7 @@ const Search = () => {
                   onClick={() => {
                     navigator.clipboard.writeText(image.images.downsized.url);
                     console.log('Clicked! Copied ', image.images.downsized.url);
+                    toast.info('URL copied!');
                   }}
                 >
                   Copy URL
